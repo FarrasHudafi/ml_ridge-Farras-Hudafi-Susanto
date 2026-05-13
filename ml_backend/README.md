@@ -33,7 +33,7 @@ ml_backend/
 ├── config.py                            # konstanta global
 ├── data_loader.py                       # load + cleaning
 ├── feature_engineering.py               # one-hot + scaling
-├── model.py                             # Ridge + RidgeCV + OLS baseline
+├── model.py                             # Ridge + RidgeCV
 ├── evaluation.py                        # metrik & visualisasi
 ├── predict.py                           # CLI inferensi harga
 ├── main.py                              # pipeline end-to-end
@@ -67,7 +67,7 @@ Output yang dihasilkan:
 | `outputs/figures/05_aktual_vs_prediksi.png` | Scatter aktual vs prediksi |
 | `outputs/figures/06_residual.png` | Plot residual |
 | `outputs/figures/07_koefisien_ridge.png` | Top koefisien Ridge |
-| `outputs/figures/08_perbandingan_model.png` | Ridge vs OLS |
+| `outputs/figures/08_ringkasan_metrik_ridge.png` | Ringkasan MAE / RMSE / MAPE (Ridge) |
 | `outputs/reports/metrics.json` | Ringkasan numerik metrik |
 | `outputs/reports/metrics.md` | Ringkasan markdown untuk paper |
 | `outputs/models/ridge_pipeline.joblib` | Pipeline preprocessor + model |
@@ -182,9 +182,7 @@ estimasi harga muncul setelah form di-submit.
 4. **Tuning α**: grid `[0.001 … 100]` dengan 5-fold cross-validation
    (`RidgeCV`, scoring = neg-MSE).
 5. **Evaluasi**: MAE, MSE, RMSE, MAPE, R² baik pada skala rasio maupun skala
-   rupiah (rasio × base price).
-6. **Baseline**: Ordinary Least Squares (`LinearRegression`) sebagai
-   pembanding.
+   rupiah (rasio × base price) pada test set.
 
 ## 8. Replikasi
 

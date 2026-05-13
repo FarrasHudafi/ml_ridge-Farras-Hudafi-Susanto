@@ -12,7 +12,7 @@ disertakan di paper:
   * Scatter aktual vs prediksi
   * Plot residual
   * Top koefisien Ridge
-  * Perbandingan Ridge vs OLS
+  * Ringkasan metrik Ridge (test set)
 """
 from __future__ import annotations
 
@@ -79,7 +79,6 @@ def evaluate_predictions(
 
 def write_metrics_report(
     ridge_eval: EvaluationResult,
-    ols_eval: EvaluationResult,
     best_alpha: float,
     n_train: int,
     n_test: int,
@@ -97,10 +96,6 @@ def write_metrics_report(
             "ratio_scale": ridge_eval.metrics_ratio,
             "rupiah_scale": ridge_eval.metrics_rupiah,
         },
-        "ols_baseline": {
-            "ratio_scale": ols_eval.metrics_ratio,
-            "rupiah_scale": ols_eval.metrics_rupiah,
-        },
     }
     json_path = REPORT_DIR / "metrics.json"
     with open(json_path, "w", encoding="utf-8") as f:
@@ -114,19 +109,13 @@ def write_metrics_report(
         f.write(f"- Jumlah fitur (setelah encoding): **{n_features}**\n")
         f.write(f"- Alpha optimal (RidgeCV): **{best_alpha}**\n\n")
         f.write("## Skala Price Ratio\n\n")
-        f.write("| Metrik | Ridge | OLS |\n|---|---|---|\n")
+        f.write("| Metrik | Nilai |\n|---|---|\n")
         for k in ["MAE", "MSE", "RMSE", "MAPE", "R2"]:
-            f.write(
-                f"| {k} | {ridge_eval.metrics_ratio[k]:.6f} | "
-                f"{ols_eval.metrics_ratio[k]:.6f} |\n"
-            )
+            f.write(f"| {k} | {ridge_eval.metrics_ratio[k]:.6f} |\n")
         f.write("\n## Skala Rupiah (rasio x base price)\n\n")
-        f.write("| Metrik | Ridge | OLS |\n|---|---|---|\n")
+        f.write("| Metrik | Nilai |\n|---|---|\n")
         for k in ["MAE", "MSE", "RMSE", "MAPE", "R2"]:
-            f.write(
-                f"| {k} | {ridge_eval.metrics_rupiah[k]:.2f} | "
-                f"{ols_eval.metrics_rupiah[k]:.2f} |\n"
-            )
+            f.write(f"| {k} | {ridge_eval.metrics_rupiah[k]:.2f} |\n")
 
     return json_path, md_path
 
@@ -246,23 +235,17 @@ def plot_top_coefficients(model, feature_names, top_k=15):
     return path
 
 
-def plot_model_comparison(ridge_eval, ols_eval):
+def plot_ridge_metrics_summary(ridge_eval: EvaluationResult):
+    """Bar chart ringkasan MAE / RMSE / MAPE pada skala price ratio (test set)."""
     _ensure_dirs()
     metrics = ["MAE", "RMSE", "MAPE"]
-    ridge_vals = [ridge_eval.metrics_ratio[m] for m in metrics]
-    ols_vals = [ols_eval.metrics_ratio[m] for m in metrics]
-    x = np.arange(len(metrics))
-    width = 0.35
+    vals = [ridge_eval.metrics_ratio[m] for m in metrics]
     fig, ax = plt.subplots(figsize=(7, 4))
-    ax.bar(x - width / 2, ridge_vals, width, label="Ridge", color="#2563eb")
-    ax.bar(x + width / 2, ols_vals, width, label="OLS", color="#9ca3af")
-    ax.set_xticks(x)
-    ax.set_xticklabels(metrics)
-    ax.set_title("Perbandingan Ridge vs OLS (skala rasio)")
+    ax.bar(metrics, vals, color="#2563eb")
+    ax.set_title("Ringkasan metrik Ridge Regression (skala price ratio, test set)")
     ax.set_ylabel("Nilai metrik")
-    ax.legend()
     fig.tight_layout()
-    path = FIGURE_DIR / "08_perbandingan_model.png"
+    path = FIGURE_DIR / "08_ringkasan_metrik_ridge.png"
     fig.savefig(path, dpi=150)
     plt.close(fig)
     return path
@@ -279,5 +262,5 @@ __all__ = [
     "plot_actual_vs_predicted",
     "plot_residuals",
     "plot_top_coefficients",
-    "plot_model_comparison",
+    "plot_ridge_metrics_summary",
 ]

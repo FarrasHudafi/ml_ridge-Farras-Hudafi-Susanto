@@ -14,7 +14,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import numpy as np
-from sklearn.linear_model import LinearRegression, Ridge, RidgeCV
+from sklearn.linear_model import Ridge, RidgeCV
 from sklearn.model_selection import train_test_split
 
 from config import ALPHA_GRID, CV_FOLDS, RANDOM_STATE, TEST_SIZE
@@ -77,12 +77,6 @@ def _evaluate_alpha_grid(X_train, y_train):
         alphas.append(alpha)
         mse_values.append(float(np.mean(fold_mse)))
     return alphas, mse_values
-
-
-def train_baseline_ols(X_train, y_train) -> LinearRegression:
-    model = LinearRegression()
-    model.fit(X_train, y_train)
-    return model
 
 
 if __name__ == "__main__":
