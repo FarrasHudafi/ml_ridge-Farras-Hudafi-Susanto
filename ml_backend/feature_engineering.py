@@ -46,15 +46,6 @@ def _build_preprocessor() -> ColumnTransformer:
         remainder="drop",
     )
 
-
-def _expand_feature_names(preprocessor: ColumnTransformer) -> list[str]:
-    names: list[str] = list(NUMERIC_FEATURES) + list(BINARY_FEATURES)
-    ohe: OneHotEncoder = preprocessor.named_transformers_["cat"]
-    cat_names = ohe.get_feature_names_out(CATEGORICAL_FEATURES)
-    names.extend(cat_names.tolist())
-    return names
-
-
 def build_feature_matrix(df: pd.DataFrame) -> FeatureMatrix:
     required = NUMERIC_FEATURES + BINARY_FEATURES + CATEGORICAL_FEATURES + [TARGET_COLUMN]
     missing = [c for c in required if c not in df.columns]
@@ -69,6 +60,15 @@ def build_feature_matrix(df: pd.DataFrame) -> FeatureMatrix:
     feature_names = _expand_feature_names(preprocessor)
 
     return FeatureMatrix(X=X, y=y, feature_names=feature_names, preprocessor=preprocessor)
+
+def _expand_feature_names(preprocessor: ColumnTransformer) -> list[str]:
+    names: list[str] = list(NUMERIC_FEATURES) + list(BINARY_FEATURES)
+    ohe: OneHotEncoder = preprocessor.named_transformers_["cat"]
+    cat_names = ohe.get_feature_names_out(CATEGORICAL_FEATURES)
+    names.extend(cat_names.tolist())
+    return names
+
+
 
 
 def transform_for_inference(df: pd.DataFrame, preprocessor: ColumnTransformer) -> np.ndarray:

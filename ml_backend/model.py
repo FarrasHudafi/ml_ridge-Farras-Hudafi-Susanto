@@ -86,5 +86,18 @@ if __name__ == "__main__":
     df = load_clean_dataset()
     fm = build_feature_matrix(df)
     X_train, X_test, y_train, y_test = split_dataset(fm.X, fm.y)
+    
+    # Info pembagian dataset (untuk sub-bab 3.4.1)
+    print(f"\n[SPLIT] Total record       : {fm.X.shape[0]}")
+    print(f"[SPLIT] Training set        : {X_train.shape[0]} record")
+    print(f"[SPLIT] Testing set         : {X_test.shape[0]} record")
+    
     trained = train_ridge_with_cv(X_train, y_train, fm.feature_names)
-    print(f"Best alpha = {trained.best_alpha}")
+    
+    # Info hasil tuning (untuk sub-bab 3.4.3)
+    print(f"\n[TUNING] Grid CV-MSE per alpha:")
+    for a, m in zip(trained.cv_alphas, trained.cv_mse):
+        marker = "  <-- optimal" if a == trained.best_alpha else ""
+        print(f"         alpha={a:>8.3f}  cv_mse={m:.6f}{marker}")
+    
+    print(f"\n[RESULT] Best alpha = {trained.best_alpha}")
